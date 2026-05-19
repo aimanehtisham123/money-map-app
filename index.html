@@ -1,0 +1,124 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Expense Manager</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+  <div class="container">
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <h2>Expense Manager</h2>
+      <ul>
+        <li>Dashboard</li>
+        <li>Add Expense</li>
+        <li>History</li>
+      </ul>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+
+      <header>
+        <h1>Monthly Household Expenses</h1>
+        <button id="themeToggle">🌙</button>
+      </header>
+
+      <div class="budget-box">
+  <input type="number" id="budgetInput" placeholder="Enter Monthly Budget">
+  <button onclick="setBudget()">Set Budget</button>
+</div>
+
+      <!-- Summary Cards -->
+      <section class="cards">
+        <div class="card">
+          <h3>Total Expense</h3>
+          <p id="totalExpense">Rs. 0</p>
+        </div>
+
+        <div class="card">
+  <h3>Budget</h3>
+  <p id="budgetDisplay">Rs. 0</p>
+</div>
+
+        <div class="card">
+          <h3>Remaining</h3>
+          <p id="remaining">Rs. 50000</p>
+        </div>
+      </section>
+
+      <!-- Expense Form -->
+      <section class="form-section">
+        <h2>Add Expense</h2>
+
+        <form id="expenseForm">
+          <input type="text" id="title" placeholder="Expense Title" required />
+
+          <input type="number" id="amount" placeholder="Amount" required />
+
+          <select id="category" required>
+            <option value="">Select Category</option>
+            <option>Grocery / Rashan</option>
+            <option>Electricity</option>
+            <option>Gas</option>
+            <option>Water</option>
+            <option>Internet</option>
+            <option>Medical</option>
+            <option>Transport</option>
+            <option>Education</option>
+            <option>Rent</option>
+            <option>Extra Expenses</option>
+          </select>
+
+          <input type="date" id="date" required />
+
+          <button type="submit">Add Expense</button>
+        </form>
+      </section>
+
+      <!-- Progress Bar -->
+      <section class="progress-section">
+        <h2>Budget Usage</h2>
+        <div class="progress-bar">
+          <div class="progress" id="progress"></div>
+        </div>
+      </section>
+
+      <!-- Expense Table -->
+      <section class="table-section">
+        <h2>Expense History</h2>
+
+        <table>
+          <thead>
+            <tr>
+              <th>Title</th>
+              <th>Amount</th>
+              <th>Category</th>
+              <th>Date</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+
+          <tbody id="expenseList"></tbody>
+        </table>
+      </section>
+
+      <!-- Chart -->
+      <section class="chart-section">
+        <h2>Expense Chart</h2>
+        <canvas id="expenseChart"></canvas>
+      </section>
+
+    </main>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
+
