@@ -1,18 +1,18 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Expense Manager</title>
+
   <link rel="stylesheet" href="style.css" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
+
 <body>
 
   <div class="container">
 
-    <!-- Sidebar -->
     <aside class="sidebar">
       <h2>Expense Manager</h2>
       <ul>
@@ -22,7 +22,6 @@
       </ul>
     </aside>
 
-    <!-- Main Content -->
     <main class="main-content">
 
       <header>
@@ -30,12 +29,13 @@
         <button id="themeToggle">🌙</button>
       </header>
 
+      <!-- Budget -->
       <div class="budget-box">
-  <input type="number" id="budgetInput" placeholder="Enter Monthly Budget">
-  <button onclick="setBudget()">Set Budget</button>
-</div>
+        <input type="number" id="budgetInput" placeholder="Enter Monthly Budget">
+        <button onclick="setBudget()">Set Budget</button>
+      </div>
 
-      <!-- Summary Cards -->
+      <!-- Cards -->
       <section class="cards">
         <div class="card">
           <h3>Total Expense</h3>
@@ -43,28 +43,27 @@
         </div>
 
         <div class="card">
-  <h3>Budget</h3>
-  <p id="budgetDisplay">Rs. 0</p>
-</div>
+          <h3>Budget</h3>
+          <p id="budgetDisplay">Rs. 0</p>
+        </div>
 
         <div class="card">
           <h3>Remaining</h3>
-          <p id="remaining">Rs. 50000</p>
+          <p id="remaining">Rs. 0</p>
         </div>
       </section>
 
-      <!-- Expense Form -->
+      <!-- Form -->
       <section class="form-section">
         <h2>Add Expense</h2>
 
         <form id="expenseForm">
-          <input type="text" id="title" placeholder="Expense Title" required />
-
+          <input type="text" id="title" placeholder="Title" required />
           <input type="number" id="amount" placeholder="Amount" required />
 
           <select id="category" required>
             <option value="">Select Category</option>
-            <option>Grocery / Rashan</option>
+            <option>Grocery</option>
             <option>Electricity</option>
             <option>Gas</option>
             <option>Water</option>
@@ -73,16 +72,15 @@
             <option>Transport</option>
             <option>Education</option>
             <option>Rent</option>
-            <option>Extra Expenses</option>
+            <option>Other</option>
           </select>
 
           <input type="date" id="date" required />
-
           <button type="submit">Add Expense</button>
         </form>
       </section>
 
-      <!-- Progress Bar -->
+      <!-- Progress -->
       <section class="progress-section">
         <h2>Budget Usage</h2>
         <div class="progress-bar">
@@ -90,10 +88,9 @@
         </div>
       </section>
 
-      <!-- Expense Table -->
+      <!-- Table -->
       <section class="table-section">
-        <h2>Expense History</h2>
-
+        <h2>History</h2>
         <table>
           <thead>
             <tr>
@@ -104,21 +101,24 @@
               <th>Action</th>
             </tr>
           </thead>
-
           <tbody id="expenseList"></tbody>
         </table>
       </section>
 
       <!-- Chart -->
       <section class="chart-section">
-        <h2>Expense Chart</h2>
+        <h2>Chart</h2>
         <canvas id="expenseChart"></canvas>
       </section>
 
     </main>
   </div>
 
-  <script src="script.js"></script>
+  <!-- Firebase (v8 - SIMPLE) -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
+<script src="script.js"></script>
+ 
 </body>
 </html>
-

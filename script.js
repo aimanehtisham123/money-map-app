@@ -1,3 +1,19 @@
+// Firebase Config
+const firebaseConfig = {
+  apiKey: "AIzaSyAqACO-OW1t1tKm_FXa3gkGG-C7D-YvP10",
+  authDomain: "money-map-11c58.firebaseapp.com",
+  databaseURL: "https://money-map-11c58-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "money-map-11c58",
+  storageBucket: "money-map-11c58.firebasestorage.app",
+  messagingSenderId: "53328250459",
+  appId: "1:53328250459:web:1b4eeea8cadf9015fee17e"
+};
+
+// INIT FIREBASE (Realtime DB)
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+
+/* ---------------- UI ---------------- */
 const expenseForm = document.getElementById("expenseForm");
 const expenseList = document.getElementById("expenseList");
 const totalExpense = document.getElementById("totalExpense");
@@ -5,173 +21,109 @@ const remaining = document.getElementById("remaining");
 const progress = document.getElementById("progress");
 const themeToggle = document.getElementById("themeToggle");
 
-// Budget (single source of truth)
 let budget = Number(localStorage.getItem("budget")) || 0;
+let expenses = [];
 
-// Expenses from localStorage
-let expenses = JSON.parse(localStorage.getItem("expenses")) || [];
-
-/* ---------------------------
-   SET BUDGET FUNCTION
-----------------------------*/
+/* ---------------- SET BUDGET ---------------- */
 function setBudget() {
-  const input = document.getElementById("budgetInput");
-
-  budget = Number(input.value);
+  budget = Number(document.getElementById("budgetInput").value);
 
   localStorage.setItem("budget", budget);
+  document.getElementById("budgetDisplay").innerText = `Rs. ${budget}`;
 
-  // Update UI
-  const budgetDisplay = document.getElementById("budgetDisplay");
-  if (budgetDisplay) {
-    budgetDisplay.innerText = `Rs. ${budget}`;
-  }
-
-  displayExpenses();
-
-  input.value = "";
+  render();
 }
 
-/* ---------------------------
-   ADD EXPENSE
-----------------------------*/
-expenseForm.addEventListener("submit", function (e) {
+/* ---------------- ADD EXPENSE ---------------- */
+expenseForm.addEventListener("submit", (e) => {
   e.preventDefault();
 
-  const title = document.getElementById("title").value;
-  const amount = Number(document.getElementById("amount").value);
-  const category = document.getElementById("category").value;
-  const date = document.getElementById("date").value;
-
-  const expense = {
-    id: Date.now(),
-    title,
-    amount,
-    category,
-    date,
+  const newExpense = {
+    title: document.getElementById("title").value,
+    amount: Number(document.getElementById("amount").value),
+    category: document.getElementById("category").value,
+    date: document.getElementById("date").value
   };
 
-  expenses.push(expense);
+  db.ref("expenses").push(newExpense);
 
-  localStorage.setItem("expenses", JSON.stringify(expenses));
-
-  displayExpenses();
   expenseForm.reset();
 });
 
-/* ---------------------------
-   DISPLAY EXPENSES
-----------------------------*/
-function displayExpenses() {
+/* ---------------- LOAD DATA (REALTIME) ---------------- */
+db.ref("expenses").on("value", (snapshot) => {
+  const data = snapshot.val();
+  expenses = [];
+
+  for (let id in data) {
+    expenses.push({ id, ...data[id] });
+  }
+
+  render();
+});
+
+/* ---------------- DELETE ---------------- */
+function deleteExpense(id) {
+  db.ref("expenses/" + id).remove();
+}
+
+/* ---------------- RENDER ---------------- */
+function render() {
   expenseList.innerHTML = "";
 
   let total = 0;
 
-  expenses.forEach((expense) => {
-    total += expense.amount;
+  expenses.forEach((e) => {
+    total += e.amount;
 
-    const row = document.createElement("tr");
-
-    row.innerHTML = `
-      <td>${expense.title}</td>
-      <td>Rs. ${expense.amount}</td>
-      <td>${expense.category}</td>
-      <td>${expense.date}</td>
-      <td>
-        <button class="delete-btn" onclick="deleteExpense(${expense.id})">
-          Delete
-        </button>
-      </td>
+    expenseList.innerHTML += `
+      <tr>
+        <td>${e.title}</td>
+        <td>Rs. ${e.amount}</td>
+        <td>${e.category}</td>
+        <td>${e.date}</td>
+        <td><button onclick="deleteExpense('${e.id}')">Delete</button></td>
+      </tr>
     `;
-
-    expenseList.appendChild(row);
   });
 
-  // Total
   totalExpense.innerText = `Rs. ${total}`;
-
-  // Remaining (safe)
   remaining.innerText = `Rs. ${budget - total}`;
 
-  // Progress bar (safe division)
-  let percentage = 0;
-  if (budget > 0) {
-    percentage = (total / budget) * 100;
-  }
-  progress.style.width = `${percentage}%`;
+  let percent = budget > 0 ? (total / budget) * 100 : 0;
+  progress.style.width = percent + "%";
 
   updateChart();
 }
 
-/* ---------------------------
-   DELETE EXPENSE
-----------------------------*/
-function deleteExpense(id) {
-  expenses = expenses.filter((expense) => expense.id !== id);
-
-  localStorage.setItem("expenses", JSON.stringify(expenses));
-
-  displayExpenses();
-}
-
-/* ---------------------------
-   DARK MODE
-----------------------------*/
-themeToggle.addEventListener("click", () => {
+/* ---------------- DARK MODE ---------------- */
+themeToggle.onclick = () => {
   document.body.classList.toggle("dark-mode");
-});
+};
 
-/* ---------------------------
-   CHART
-----------------------------*/
+/* ---------------- CHART ---------------- */
 let chart;
 
 function updateChart() {
-  const categories = {};
+  const cat = {};
 
-  expenses.forEach((expense) => {
-    if (categories[expense.category]) {
-      categories[expense.category] += expense.amount;
-    } else {
-      categories[expense.category] = expense.amount;
-    }
+  expenses.forEach((e) => {
+    cat[e.category] = (cat[e.category] || 0) + e.amount;
   });
 
-  const labels = Object.keys(categories);
-  const data = Object.values(categories);
+  const labels = Object.keys(cat);
+  const data = Object.values(cat);
 
-  const ctx = document.getElementById("expenseChart");
+  if (chart) chart.destroy();
 
-  if (!ctx) return;
-
-  if (chart) {
-    chart.destroy();
-  }
-
-  chart = new Chart(ctx, {
+  chart = new Chart(document.getElementById("expenseChart"), {
     type: "pie",
     data: {
-      labels: labels,
-      datasets: [
-        {
-          data: data,
-        },
-      ],
-    },
+      labels,
+      datasets: [{ data }]
+    }
   });
 }
 
-/* ---------------------------
-   INIT ON LOAD
-----------------------------*/
-function init() {
-  const budgetDisplay = document.getElementById("budgetDisplay");
-
-  if (budgetDisplay) {
-    budgetDisplay.innerText = `Rs. ${budget}`;
-  }
-
-  displayExpenses();
-}
-
-init();
+/* ---------------- INIT ---------------- */
+document.getElementById("budgetDisplay").innerText = `Rs. ${budget}`;
